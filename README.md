@@ -19,6 +19,7 @@ symfony check:requirements
 ### Install & launch development environment
 ```bash
 composer install
-docker-compose up -d
-symfony serve -d
+docker-compose up -d        # database
+symfony serve -d            # server
+yarn run encore dev --watch # js & css
 ```
