@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -43,6 +45,21 @@ class User implements UserInterface
      * @ORM\Column(type="text", nullable=true)
      */
     private $about;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $created_at;
+
+    /**
+     * @ORM\OneToMany(targetEntity=BeerList::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $beerLists;
+
+    public function __construct()
+    {
+        $this->beerLists = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -145,6 +162,48 @@ class User implements UserInterface
     public function setAbout(?string $about): self
     {
         $this->about = $about;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BeerList[]
+     */
+    public function getBeerLists(): Collection
+    {
+        return $this->beerLists;
+    }
+
+    public function addBeerList(BeerList $beerList): self
+    {
+        if (!$this->beerLists->contains($beerList)) {
+            $this->beerLists[] = $beerList;
+            $beerList->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBeerList(BeerList $beerList): self
+    {
+        if ($this->beerLists->removeElement($beerList)) {
+            // set the owning side to null (unless already changed)
+            if ($beerList->getUser() === $this) {
+                $beerList->setUser(null);
+            }
+        }
 
         return $this;
     }
