@@ -25,13 +25,18 @@ class Beer
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity=BeerList::class, mappedBy="beers")
+     * @ORM\Column(type="datetime")
      */
-    private $beerLists;
+    private $created_at;
+
+    /**
+     * @ORM\OneToMany(targetEntity=BeerListItem::class, mappedBy="beer", orphanRemoval=true)
+     */
+    private $beerListItems;
 
     public function __construct()
     {
-        $this->beerLists = new ArrayCollection();
+        $this->beerListItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -51,28 +56,43 @@ class Beer
         return $this;
     }
 
-    /**
-     * @return Collection|BeerList[]
-     */
-    public function getBeerLists(): Collection
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->beerLists;
+        return $this->created_at;
     }
 
-    public function addBeerList(BeerList $beerList): self
+    public function setCreatedAt(\DateTimeInterface $created_at): self
     {
-        if (!$this->beerLists->contains($beerList)) {
-            $this->beerLists[] = $beerList;
-            $beerList->addBeer($this);
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BeerListItem[]
+     */
+    public function getBeerListItems(): Collection
+    {
+        return $this->beerListItems;
+    }
+
+    public function addBeerListItem(BeerListItem $beerListItem): self
+    {
+        if (!$this->beerListItems->contains($beerListItem)) {
+            $this->beerListItems[] = $beerListItem;
+            $beerListItem->setBeer($this);
         }
 
         return $this;
     }
 
-    public function removeBeerList(BeerList $beerList): self
+    public function removeBeerListItem(BeerListItem $beerListItem): self
     {
-        if ($this->beerLists->removeElement($beerList)) {
-            $beerList->removeBeer($this);
+        if ($this->beerListItems->removeElement($beerListItem)) {
+            // set the owning side to null (unless already changed)
+            if ($beerListItem->getBeer() === $this) {
+                $beerListItem->setBeer(null);
+            }
         }
 
         return $this;

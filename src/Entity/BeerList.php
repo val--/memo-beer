@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * A list containing "BeerListItems"
  * @ORM\Entity(repositoryClass=BeerListRepository::class)
  */
 class BeerList
@@ -46,13 +47,13 @@ class BeerList
     private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Beer::class, inversedBy="beerLists")
+     * @ORM\OneToMany(targetEntity=BeerListItem::class, mappedBy="BeerList", orphanRemoval=true)
      */
-    private $beers;
+    private $beerListItems;
 
     public function __construct()
     {
-        $this->beers = new ArrayCollection();
+        $this->beerListItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -121,26 +122,33 @@ class BeerList
     }
 
     /**
-     * @return Collection|Beer[]
+     * @return Collection|BeerListItem[]
      */
-    public function getBeers(): Collection
+    public function getBeerListItems(): Collection
     {
-        return $this->beers;
+        return $this->beerListItems;
     }
 
-    public function addBeer(Beer $beer): self
+    public function addBeerListItem(BeerListItem $beerListItem): self
     {
-        if (!$this->beers->contains($beer)) {
-            $this->beers[] = $beer;
+        if (!$this->beerListItems->contains($beerListItem)) {
+            $this->beerListItems[] = $beerListItem;
+            $beerListItem->setBeerList($this);
         }
 
         return $this;
     }
 
-    public function removeBeer(Beer $beer): self
+    public function removeBeerListItem(BeerListItem $beerListItem): self
     {
-        $this->beers->removeElement($beer);
+        if ($this->beerListItems->removeElement($beerListItem)) {
+            // set the owning side to null (unless already changed)
+            if ($beerListItem->getBeerList() === $this) {
+                $beerListItem->setBeerList(null);
+            }
+        }
 
         return $this;
     }
+
 }
