@@ -12,6 +12,6 @@ import './styles/app.scss';
 import './bootstrap';
 
 import React from 'react';
-import ReactDom from 'react-dom'
-const el = <h2>Hello from React !</h2>;
-ReactDom.render(el, document.getElementById('js_app'));
+import {render} from 'react-dom'
+import List from './js/List';
+render(<List/>, document.getElementById('js_app'));
